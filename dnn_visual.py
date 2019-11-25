@@ -70,6 +70,14 @@ def model_build(x):
     multi_rnn_cell = tf.nn.rnn_cell.MultiRNNCell(rnn_layers)
     outputs, state = tf.nn.dynamic_rnn(cell=multi_rnn_cell, inputs=reshape_1, dtype=tf.float32)
 
+    tv = [v.name for v in tf.trainable_variables()]
+    with tf.variable_scope('rnn', reuse=tf.AUTO_REUSE):
+        a = tf.get_variable('multi_rnn_cell/cell_0/lstm_cell/bias', shape=multi_rnn_cells[1].shape)
+        b = tf.get_variable('multi_rnn_cell/cell_1/lstm_cell/bias', shape=multi_rnn_cells[3].shape)
+        print(a, "variable")
+        a = tf.assign(a, multi_rnn_cells[1])
+        b = tf.assign(b, multi_rnn_cells[3])
+
     reshape_2 = tf.reshape(outputs, [-1, 3, 4, 16])
     conv2_6 = tf.cast(conv2_6, tf.float32)
     dconv2_6_in = tf.concat([reshape_2, conv2_6], 3)
@@ -109,6 +117,10 @@ def model_build(x):
     init = tf.group(tf.global_variables_initializer(), tf.local_variables_initializer())
     sess = tf.Session()
     sess.run(init)
+    sess.run(a)
+    sess.run(b)
+    tvars = sess.run([tv, outputs])
+
     conv2_7, dconv2_0, dconv2_1, dconv2_2, dconv2_3, dconv2_4, dconv2_5, conv2_6, conv2_5, conv2_4, conv2_3, conv2_2, conv2_1 = sess.run(
         [conv2_7, dconv2_0, dconv2_1, dconv2_2, dconv2_3, dconv2_4, dconv2_5, conv2_6, conv2_5, conv2_4, conv2_3, conv2_2, conv2_1])
     plt.figure(1)
